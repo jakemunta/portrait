@@ -46,4 +46,8 @@ chdir APP_ROOT do
 
   puts "\n== Portrait is Ready =="
   puts "Temporary user created. Username: admin Password: admin"
+
+  puts "\n== Restarting background job workers =="
+  system! 'bin/delayed_job stop'
+  system! 'bin/delayed_job start'
 end
