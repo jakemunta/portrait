@@ -6,7 +6,13 @@ class Site < ApplicationRecord
 
   has_one_attached :image
 
-  after_create :process!
+  #after_create :process!
+  after_create :process_in_background!
+  def process_in_background!
+    submitted!
+    ScreenCaptureJob.perform_later(id)
+  end
+
   def process!
     started!
     handle generate_png
