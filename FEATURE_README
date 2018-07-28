@@ -1,0 +1,50 @@
+Feature 
+
+Nonblocking - If we're really going to scale this thing, we need to take image generation out of the request. Perhaps we need a background queue, or some other way to fork the process?
+
+Why did you choose to work on certain features?
+Requirements for this feature were self explainatory and could be implemented independenlly without changing core functionality. Effort wise the requirement wasn't complex and can be implemented in couple of hours. 
+
+How accurate was your estimation of time to implement?
+I estimated the feature for 2.5 hours and it got completed within time.
+
+How the feature is implemented?
+Added follwoing gems:
+
+gem 'delayed_job_active_record', '4.1.3'
+gem 'daemons', '1.2.6'
+
+Generated the migration for delayed job:
+rails generate delayed_job:active_record
+
+Configured queue adapter in application.rb
+config.active_job.queue_adapter = :delayed_job
+
+Created Screen Capture Job Class:
+rails generate job screen_capture
+
+Modified Site Model:
+
+  after_create :process_in_background!
+  def process_in_background!
+    submitted!
+    ScreenCaptureJob.perform_later(id)
+  end
+
+Modified Screen Capture Job Class:
+
+  def perform(site_id)
+     site = Site.find(site_id)
+     site.process!
+  end
+
+Added background worker commands bin/setup script:
+
+system! 'bin/delayed_job stop'
+system! 'bin/delayed_job start'
+
+
+
+
+
+
